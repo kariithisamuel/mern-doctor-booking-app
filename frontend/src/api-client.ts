@@ -58,3 +58,16 @@ export const signOut = async () => {
         throw new Error("Error during sign out");
     }
 };
+
+export const addMyHospital = async (hospitalFormData: FormData) => {
+    const response = await fetch(`${API_BASE_URL}/api/my-hospitals`, {
+        method: "POST",
+        credentials: "include",
+        body: hospitalFormData,
+    });
+    if (!response.ok) {
+        throw new Error("Failed to add hospital");
+    }
+
+    return response.json();
+};
