@@ -1,9 +1,10 @@
 import express, { Request, Response } from "express";
 import cloudinary from 'cloudinary';
 import multer from 'multer';
-import Hospital, { HospitalType } from "../models/hospital";
 import verifyToken from "../middleware/auth";
 import { body } from "express-validator";
+import { HospitalType } from "../shared/types";
+import Hospital from "../models/hospital";
 
 const router = express.Router();
 
@@ -13,7 +14,7 @@ const upload = multer({
     limits: {
         fileSize: 5 * 1024 * 1024
     }
-})
+});
 
 router.post(
     "/", 
@@ -34,10 +35,10 @@ router.post(
             const newHospital: HospitalType = req.body;
 
             const uploadPromises = imageFiles.map(async (image) => {
-                const b64 = Buffer.from(image.buffer).toString("base64")
-                let dataURI = "data:" + image.mimetype + ";base64," + b64;
-                const res = await cloudinary.v2.uploader.upload(dataURI);
-                return res.url;
+                const b64 = Buffer.from(image.buffer).toString("base64");
+                const dataURI = "data:" + image.mimetype + ";base64," + b64;
+                const result = await cloudinary.v2.uploader.upload(dataURI);
+                return result.url;
             });
 
             const imageUrls = await Promise.all(uploadPromises);
@@ -48,12 +49,23 @@ router.post(
             const hospital = new Hospital(newHospital);
             await hospital.save();
 
-            res.status(201).send(hospital);
+            res.status(201).json(hospital);
 
         } catch (e) {
             console.log("Error creating hospital: ", e);
-            res.status(500).json({ message: "something went wrong" });
+            res.status(500).json({ message: "Something went wrong" });
         }
-    });
+    }
+);
+
+router.get("/", verifyToken, async (req: Request, res: Response) => {
+    try {
+        const hospitals = await Hospital.find({ userId: req.userId });
+        res.json(hospitals);
+    } catch (error) {
+        console.log("Error fetching hospitals: ", error);
+        res.status(500).json({ message: "Error fetching hospitals" });
+    }
+});
 
 export default router;

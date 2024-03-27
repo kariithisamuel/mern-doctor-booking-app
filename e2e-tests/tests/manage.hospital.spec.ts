@@ -25,7 +25,7 @@ test("should allow user to add hospital", async ({ page }) => {
     await page.locator('[name= "name"]').fill("Test Hospital");
     await page.locator('[name= "city"]').fill("Test City");
     await page.locator('[name= "country"]').fill("Test Country");
-    await page.locator('[name= "description"]').fill("This is a description for the test hotel");
+    await page.locator('[name= "description"]').fill("This is a description for the test hospital");
     await page.locator('[name= "pricePerNight"]').fill("100");
     await page.selectOption('select[name="starRating"]', "3");
     await page.getByText("Specialty Hospital").click();
@@ -39,6 +39,21 @@ test("should allow user to add hospital", async ({ page }) => {
     ])
 
     await page.getByRole('button', { name: "Save" }).click();
-    await expect(page.getByText("Hospital Saved")).toBeVisible();
+    await expect(page.getByText("Hospital Saved!")).toBeVisible();
+});
 
+test("should display hospitals", async ({ page }) => {
+    await page.goto(`${UI_URL}my-hospitals`);
+
+    await expect(page.getByText("mediProgress")).toBeVisible();
+    await expect(page.getByText(':has-text("we pride ourselves on our commitment")')).toBeVisible();
+    await expect(page.getByText("nairobi, Kenya")).toBeVisible();
+    await expect(page.getByText("Specialty Hospital")).toBeVisible();
+    await expect(page.getByText("ksh 10000 per night")).toBeVisible();
+    await expect(page.getByText("1 adults, 0 children")).toBeVisible();
+    await expect(page.getByText("5 star Rating")).toBeVisible();
+
+    await expect(page.getByRole("link", { name: "View Details" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Add Hospital" })).toBeVisible();
+    
 });

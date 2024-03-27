@@ -4,6 +4,7 @@ import Register from "./pages/Register";
 import SignIn from "./pages/SignIn";
 import AddHospital from "./pages/AddHospital";
 import { useAppContext } from "./contexts/AppContext";
+import MyHospitals from "./pages/MyHospitals";
 
 
 const App = () => {
@@ -47,6 +48,12 @@ const App = () => {
           <Route path="/add-hospital" element={
             <Layout >
               <AddHospital/>
+            </Layout>
+          }
+            />
+             <Route path="/my-hospitals" element={
+            <Layout >
+              <MyHospitals/>
             </Layout>
           }
             />
