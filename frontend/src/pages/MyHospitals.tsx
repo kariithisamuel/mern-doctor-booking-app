@@ -18,7 +18,7 @@ const MyHospitals = () => {
     }
 
     return (
-        <div className="space-y-5">
+    <div className="space-y-5">
        <span className="flex justify-between">
         <h1 className="text-3xl font-bold">My Hospitals</h1>
         <Link

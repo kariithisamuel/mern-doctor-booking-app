@@ -1,3 +1,11 @@
+export type UserType = {
+  _id: string;
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+};
+
 export type HospitalType = {
     _id: string;
     userId: string;
@@ -13,4 +21,4 @@ export type HospitalType = {
     starRating: number;
     imageUrls: string[];
     lastUpdated: Date;
-}
+};

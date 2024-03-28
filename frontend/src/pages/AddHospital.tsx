@@ -4,12 +4,11 @@ import { useAppContext } from "../contexts/AppContext";
 import * as apiClient from '../api-client';
 
 const AddHospital = () => {
-
     const { showToast } = useAppContext();
 
     const { mutate, isLoading } = useMutation(apiClient.addMyHospital, {
         onSuccess: () => {
-            showToast( { message: "Hospital Saved! ", type: "SUCCESS"})
+            showToast({ message: "Hospital Saved!", type: "SUCCESS" });
         },
         onError: () => {
             showToast({ message: "Error saving Hospital", type: "ERROR" });
@@ -17,10 +16,12 @@ const AddHospital = () => {
     });
 
     const handleSave = (hospitalFormData: FormData) => {
-        mutate(hospitalFormData)
+        mutate(hospitalFormData);
     };
 
-    return <ManageHospitalForm onSave={handleSave} isLoading={isLoading} />;
+    return (
+        <ManageHospitalForm onSave={handleSave} isLoading={isLoading} />
+    );
 };
 
 export default AddHospital;

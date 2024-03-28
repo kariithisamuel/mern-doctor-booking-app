@@ -84,3 +84,29 @@ export const fetchMyHospitals = async (): Promise<HospitalType[]> => {
 
     return response.json();
 };
+
+export const fetchMyHospitalById = async (hospitalId: string): Promise<HospitalType> => {
+    const response = await fetch(`${API_BASE_URL}/api/my-hospitals/${hospitalId}`, {
+    credentials: "include",
+  });
+    if (!response.ok) {
+        throw new Error("Error fetching Hospitals");
+    }
+    return response.json();
+}
+
+export const updateMyHospitalById = async (hospitalFormData: FormData) => {
+    const response = await fetch(
+        `${API_BASE_URL}/api/my-hospitals/${hospitalFormData.get("hospitallId")}`,
+        {
+            method: "PUT",
+            body: hospitalFormData,
+            credentials: "include",
+        }   
+    );
+    if (!response.ok) {
+        throw new Error ("Failed to update Hospital")
+    }
+
+    return response.json();
+ };
