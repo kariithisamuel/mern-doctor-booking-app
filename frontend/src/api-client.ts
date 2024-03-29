@@ -1,8 +1,19 @@
 import { RegisterFormData } from "./pages/Register";
 import { SignInFormData } from "./pages/SignIn";
-import { HospitalType } from '../../backend/src/shared/types';
+import { HospitalSearchResponse, HospitalType, UserType } from '../../backend/src/shared/types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
+
+export const fetchCurrentUser = async (): Promise<UserType> => {
+  const response = await fetch(`${API_BASE_URL}/api/users/me`, {
+    credentials: "include",
+  });
+  if (!response.ok) {
+    throw new Error("Error fetching user");
+  }
+  return response.json();
+};
+
 export const register = async (formData: RegisterFormData) => {
     const response = await fetch(`${API_BASE_URL}/api/users/register`, {
         method: 'POST',
@@ -10,10 +21,8 @@ export const register = async (formData: RegisterFormData) => {
         headers: {
             "Content-Type": "application/json",
         },
-        
         body: JSON.stringify(formData)
-    }
-    );
+    });
     const responseBody = await response.json();
 
     if (!response.ok) {
@@ -29,11 +38,11 @@ export const signIn = async (formData: SignInFormData) => {
             "Content-Type": "application/json"
         },
         body: JSON.stringify(formData)
-    })
+    });
     
     const body = await response.json();
     if (!response.ok) {
-        throw new Error(body.message)
+        throw new Error(body.message);
     }
     return body;
 };
@@ -41,11 +50,10 @@ export const signIn = async (formData: SignInFormData) => {
 export const validateToken = async () => {
     const response = await fetch(`${API_BASE_URL}/api/auth/validate-token`, {
         credentials: "include",
-    })
+    });
     if (!response.ok) {
-        throw new Error("Token Invalid")
+        throw new Error("Token Invalid");
     }
-
     return response.json();
 };
 
@@ -69,7 +77,6 @@ export const addMyHospital = async (hospitalFormData: FormData) => {
     if (!response.ok) {
         throw new Error("Failed to add hospital");
     }
-
     return response.json();
 };
 
@@ -81,23 +88,22 @@ export const fetchMyHospitals = async (): Promise<HospitalType[]> => {
     if (!response.ok) {
         throw new Error("Error fetching hospitals");
     }
-
     return response.json();
 };
 
 export const fetchMyHospitalById = async (hospitalId: string): Promise<HospitalType> => {
     const response = await fetch(`${API_BASE_URL}/api/my-hospitals/${hospitalId}`, {
-    credentials: "include",
-  });
+        credentials: "include",
+    });
     if (!response.ok) {
         throw new Error("Error fetching Hospitals");
     }
     return response.json();
-}
+};
 
 export const updateMyHospitalById = async (hospitalFormData: FormData) => {
     const response = await fetch(
-        `${API_BASE_URL}/api/my-hospitals/${hospitalFormData.get("hospitallId")}`,
+        `${API_BASE_URL}/api/my-hospitals/${hospitalFormData.get("hospitalId")}`,
         {
             method: "PUT",
             body: hospitalFormData,
@@ -105,8 +111,56 @@ export const updateMyHospitalById = async (hospitalFormData: FormData) => {
         }   
     );
     if (!response.ok) {
-        throw new Error ("Failed to update Hospital")
+        throw new Error ("Failed to update Hospital");
+    }
+    return response.json();
+};
+ 
+export type SearchParams = {
+    destination?: string;
+    checkIn?: string;
+    checkOut?: string;
+    adultCount?: string;
+    childCount?: string;
+    page?: string;
+    facilities?: string[];
+    types?: string[];
+    stars?: string[];
+    maxPrice?: string;
+    sortOption?: string;
+};
+
+export const searchHospitals = async (
+    searchParams: SearchParams): Promise<HospitalSearchResponse> => {
+    const queryParams = new URLSearchParams();
+    queryParams.append("destination", searchParams.destination || "");
+    queryParams.append("checkIn", searchParams.checkIn || "");
+    queryParams.append("checkOut", searchParams.checkOut || "");
+    queryParams.append("adultCount", searchParams.adultCount || "");
+    queryParams.append("childCount", searchParams.childCount || "");
+    queryParams.append("page", searchParams.page || "");
+
+    queryParams.append("maxPrice", searchParams.maxPrice || "");
+    queryParams.append("sortOption", searchParams.sortOption || "");
+
+    searchParams.facilities?.forEach((facility) =>
+        queryParams.append("facilities", facility)
+    );
+
+    searchParams.types?.forEach((type) =>
+        queryParams.append("types", type)
+    );
+    
+     searchParams.stars?.forEach((star) =>
+        queryParams.append("stars", star)
+    );
+
+
+    const response = await fetch( `${API_BASE_URL}/api/hospitals/search?${queryParams}`);
+    if (!response.ok) {
+        throw new Error("Error fetching hospitals");
     }
 
     return response.json();
- };
+};
+

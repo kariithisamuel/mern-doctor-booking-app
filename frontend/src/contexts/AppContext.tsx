@@ -42,6 +42,7 @@ export const AppContextProvider = ({
                     onClose={() => setToast(undefined)}
                 />
             )}
+            
             {children}
         </AppContext.Provider>
     );

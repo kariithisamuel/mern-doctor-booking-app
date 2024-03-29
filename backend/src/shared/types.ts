@@ -22,3 +22,12 @@ export type HospitalType = {
     imageUrls: string[];
     lastUpdated: Date;
 };
+
+export type HospitalSearchResponse = {
+  data: HospitalType[];
+  pagination: {
+    total: number;
+    page: number;
+    pages: number;
+  };
+};
