@@ -1,5 +1,18 @@
 import mongoose from "mongoose";
-import { HospitalType } from "../shared/types";
+import { BookingType, HospitalType } from "../shared/types";
+
+
+const bookingSchema = new mongoose.Schema<BookingType>({
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
+  email: { type: String, required: true },
+  adultCount: { type: Number, required: true },
+  childCount: { type: Number, required: true },
+  checkIn: { type: Date, required: true },
+  checkOut: { type: Date, required: true },
+  userId: { type: String, required: true },
+  totalCost: { type: Number, required: true },
+});
 
 
 const hospitalSchema = new mongoose.Schema<HospitalType>({
@@ -16,6 +29,7 @@ const hospitalSchema = new mongoose.Schema<HospitalType>({
     starRating: { type: Number, required: true, min: 1, max: 5 },
     imageUrls: [{ type: String, required: true }],
     lastUpdated: [{ type: Date, required: true }],
+    bookings: [bookingSchema],
 });
 const Hospital = mongoose.model<HospitalType>("Hospital", hospitalSchema)
 

@@ -12,6 +12,7 @@ export const hospitalTypes = [
 
 export const hospitalFacilities = [
   "Emergency Department",
+  "maternity services",
   "Operating Rooms",
   "Intensive Care Unit",
   "Laboratory Services",

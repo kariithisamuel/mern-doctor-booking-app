@@ -32,7 +32,7 @@ const ImageSection = () => {
                             <img src={url} className="min-h-full object-cover" />
                             <button
                                 onClick={(event) => handleDelete(event, url)}
-                                className="absolute inset-0 flex items-center justify-center
+                                className="absolute inset-0 flex items-center justify-center rounded-xl
                                      bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 text-white"
                             >
                                 Delete

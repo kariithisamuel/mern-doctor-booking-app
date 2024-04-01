@@ -7,6 +7,10 @@ import MyHospitals from "./pages/MyHospitals";
 import EditHospital from "./pages/EditHospital";
 import AddHospital from "./pages/AddHospital";
 import Search from "./pages/Search";
+import Detail from "./pages/Detail";
+import Booking from "./pages/Booking";
+import MyBookings from "./pages/MyBooking";
+import Home from "./pages/Home";
 
 const App = () => {
   const { isLoggedIn } = useAppContext();
@@ -17,7 +21,7 @@ const App = () => {
           path="/"
           element={
             <Layout>
-              <p>Home page</p>
+              <Home />
             </Layout>
           }
         />
@@ -26,6 +30,14 @@ const App = () => {
           element={
             <Layout>
               <Search/>
+            </Layout>
+          }
+        />
+          <Route
+          path="/detail/:hospitalId"
+          element={
+            <Layout>
+              <Detail/>
             </Layout>
           }
         />
@@ -48,6 +60,15 @@ const App = () => {
         
         {isLoggedIn && (
           <>
+             <Route
+              path="/hospital/:hospitalId/booking"
+              element={
+                <Layout >
+                  <Booking/>
+                </Layout>
+              }
+            />
+
             <Route
               path="/add-hospital"
               element={
@@ -69,6 +90,15 @@ const App = () => {
               element={
                 <Layout >
                   <EditHospital/>
+                </Layout>
+              }
+            />
+
+            <Route
+              path="/my-bookings"
+              element={
+                <Layout>
+                  <MyBookings />
                 </Layout>
               }
             />

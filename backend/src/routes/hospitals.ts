@@ -1,10 +1,11 @@
 import express, { Request, Response } from "express";
-import {  HospitalSearchResponse } from "../shared/types";
-import { param, validationResult } from "express-validator";
-import verifyToken from "../middleware/auth";
 import Hospital from "../models/hospital";
+import { BookingType, HospitalSearchResponse } from "../shared/types";
+import { param, validationResult } from "express-validator";
+import Stripe from "stripe";
+import verifyToken from "../middleware/auth";
 
-
+const stripe = new Stripe(process.env.STRIPE_API_KEY as string);
 
 const router = express.Router();
 
@@ -85,9 +86,95 @@ router.get(
   }
 );
 
+router.post(
+  "/:hospitalId/bookings/payment-intent",
+  verifyToken,
+  async (req: Request, res: Response) => {
+    const { numberOfNights } = req.body;
+    const hospitalId = req.params.hospitalId;
 
+    const hospital = await Hospital.findById(hospitalId);
+    if (!hospital) {
+      return res.status(400).json({ message: "Hospital not found" });
+    }
 
+    const totalCost = hospital.pricePerNight * numberOfNights;
 
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: totalCost * 100,
+      currency: "gbp",
+      metadata: {
+        hospitalId,
+        userId: req.userId,
+      },
+    });
+
+    if (!paymentIntent.client_secret) {
+      return res.status(500).json({ message: "Error creating payment intent" });
+    }
+
+    const response = {
+      paymentIntentId: paymentIntent.id,
+      clientSecret: paymentIntent.client_secret.toString(),
+      totalCost,
+    };
+
+    res.send(response);
+  }
+);
+
+router.post(
+  "/:hospitalId/bookings",
+  verifyToken,
+  async (req: Request, res: Response) => {
+    try {
+      const paymentIntentId = req.body.paymentIntentId;
+
+      const paymentIntent = await stripe.paymentIntents.retrieve(
+        paymentIntentId as string
+      );
+
+      if (!paymentIntent) {
+        return res.status(400).json({ message: "payment intent not found" });
+      }
+
+      if (
+        paymentIntent.metadata.hospitalId !== req.params.hospitalId ||
+        paymentIntent.metadata.userId !== req.userId
+      ) {
+        return res.status(400).json({ message: "payment intent mismatch" });
+      }
+
+      if (paymentIntent.status !== "succeeded") {
+        return res.status(400).json({
+          message: `payment intent not succeeded. Status: ${paymentIntent.status}`,
+        });
+      }
+
+      const newBooking: BookingType = {
+        ...req.body,
+        userId: req.userId,
+      };
+
+      const hospital = await Hospital.findOneAndUpdate(
+        { _id: req.params.hospitalId },
+        {
+          $push: { bookings: newBooking },
+        }
+      );
+
+      if (!hospital) {
+        return res.status(400).json({ message: "hospital not found" });
+      }
+
+      await hospital.save();
+      res.status(200).send();
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "something went wrong" });
+    }
+  }
+);
 
 const constructSearchQuery = (queryParams: any) => {
   let constructedQuery: any = {};
